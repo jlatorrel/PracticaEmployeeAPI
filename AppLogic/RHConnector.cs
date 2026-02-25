@@ -10,6 +10,12 @@ namespace AppLogic
     {
         Task<List<Employee>> RetrieveAllEmployees();
         Task<List<string>> RetrieveAllSpecialties();
+        Task<Employee?> GetEmployeeManager(int employeeId);
+        Task<List<Employee>> GetOldestEmployee();
+        Task<List<Employee>> GetNewestEmployee();
+        Task<Employee?> GetEmployeeById(int employeeId);
+        Task<List<Employee>> GetEmployeesWithMoreThan(int years);
+        Task<List<Employee>> GetEmployeesWithLessThan(int years);
     }
     public class RHConnector : IRHConnector
     {
@@ -64,6 +70,64 @@ namespace AppLogic
                 throw e;
             }
         }
+
+        public async Task<Employee?> GetEmployeeManager(int employeeId)
+        {
+            var employees = await RetrieveAllEmployees();
+            var employee = employees.FirstOrDefault(e => e.Id == employeeId);
+
+            if (employee == null || employee.ManagerId == null)
+                return null;
+
+            return employees.FirstOrDefault(e => e.Id == employee.ManagerId);
+        }
+
+        public async Task<List<Employee>> GetOldestEmployee()
+        {
+            var employees = await RetrieveAllEmployees();
+            var minHireDate = employees.Min(e => e.HiringDate);
+
+            return employees
+                .Where(e => e.HiringDate == minHireDate)
+                .ToList();
+        }
+
+        public async Task<List<Employee>> GetNewestEmployee()
+        {
+            var employees = await RetrieveAllEmployees();
+            var maxHireDate = employees.Max(e => e.HiringDate);
+
+            return employees
+                .Where(e => e.HiringDate == maxHireDate)
+                .ToList();
+        }
+
+        public async Task<Employee?> GetEmployeeById(int employeeId)
+        {
+            var employees = await RetrieveAllEmployees();
+            return employees.FirstOrDefault(e => e.Id == employeeId);
+        }
+
+        public async Task<List<Employee>> GetEmployeesWithMoreThan(int years)
+        {
+            var employees = await RetrieveAllEmployees();
+            var cutoffDate = DateTime.Now.AddYears(-years);
+
+            return employees
+                .Where(e => e.HiringDate <= cutoffDate)
+                .ToList();
+        }
+
+        public async Task<List<Employee>> GetEmployeesWithLessThan(int years)
+        {
+            var employees = await RetrieveAllEmployees();
+            var cutoffDate = DateTime.Now.AddYears(-years);
+
+            return employees
+                .Where(e => e.HiringDate >= cutoffDate)
+                .ToList();
+        }
+
         private async Task<string> InvokePutAsync(string uri, StringContent content)
         {
             try

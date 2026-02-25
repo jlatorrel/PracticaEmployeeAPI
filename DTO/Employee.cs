@@ -12,7 +12,7 @@ namespace DTO
         public string LastName { get; set; }
         public string SurName { get; set; }
         public string DateOfBirth { get; set; }
-        public string HiringDate { get; set; }
+        public DateTime HiringDate { get; set; }
         public string Status { get; set; }
         public int? ManagerId { get; set; }
     }
